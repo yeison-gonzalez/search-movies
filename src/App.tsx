@@ -1,24 +1,41 @@
-import React from 'react';
-import logo from './logo.svg';
 import './App.css';
+import { Movies } from './components';
+import { useMovies } from './hooks/useMovies';
+import { useSearch } from './hooks/useSearch';
 
 function App() {
+  const { search, updateSearch, error } = useSearch()
+  const { movies, getMovies, loading } = useMovies({ search })
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    getMovies()
+  }
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    updateSearch(event.target.value)
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+    <div className='page'>
+      <header>
+        <h1>Buscador de películas</h1>
+        <form className='form' onSubmit={handleSubmit}>
+          <input
+            style={{
+              border: '1px solid transparent',
+              borderColor: error ? 'red' : 'transparent'
+            }} onChange={handleChange} value={search} name='query' placeholder='Avengers, Star Wars, The Matrix...'
+          />
+          <button type="submit">Buscar</button>
+        </form>
+        {error && <p style={{ color: 'red' }}>{error}</p>}
       </header>
+
+      <main>
+        {
+          loading ? <p>Cargando...</p> : <Movies movies={movies} />
+        }
+      </main>
     </div>
   );
 }
